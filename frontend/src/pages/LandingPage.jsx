@@ -4,6 +4,8 @@ import {Button} from '@/components/ui/button'
 import Nav from '../components/Nav'
 import Hero from '../components/hero'
 import ProblemSection from '../components/ProblemSection'
+import CTA from '../components/CTA'
+import Footer from '../components/footer'
 
 const LandingPage = () => {
   return (
@@ -11,6 +13,8 @@ const LandingPage = () => {
         <Nav />
         <Hero />
         <ProblemSection />
+        <CTA />
+        <Footer />
     </div>
   )
 }
