@@ -5,13 +5,16 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors()); // Mengizinkan request dari frontend
-app.use(express.json()); // Agar bisa menerima request body berupa JSON
+// Middleware wajib
+app.use(cors()); // Biar frontend Yusuf bisa akses API ini
+app.use(express.json()); // Biar bisa baca request body format JSON
 
-// Route Dasar (Untuk tes apakah server jalan)
+// Route dasar untuk ngetes server
 app.get('/', (req, res) => {
-    res.json({ message: 'Welcome to WorkSafe AI Backend API!' });
+    res.json({ 
+        status: 'success',
+        message: 'WorkSafe AI Backend API is running!' 
+    });
 });
 
 // Jalankan Server
