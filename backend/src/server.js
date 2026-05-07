@@ -1,15 +1,18 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const apiRoutes = require('./routes/api'); // <-- Tambahkan baris ini
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
-// Middleware wajib
-app.use(cors()); // Biar frontend Yusuf bisa akses API ini
-app.use(express.json()); // Biar bisa baca request body format JSON
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// Route dasar untuk ngetes server
+// Routes
+app.use('/api', apiRoutes); // <-- Tambahkan baris ini. Semua endpoint di api.js akan diawali dengan /api
+
 app.get('/', (req, res) => {
     res.json({ 
         status: 'success',
