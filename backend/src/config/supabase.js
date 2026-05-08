@@ -6,9 +6,10 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-    console.error("Gagal konek ke Supabase: URL atau KEY tidak ditemukan di file .env");
+    console.error("Gagal konek: Supabase URL atau Key tidak ditemukan di .env!");
 }
 
+// Inisialisasi koneksi ke Supabase
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 module.exports = supabase;

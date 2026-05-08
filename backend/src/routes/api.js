@@ -6,8 +6,9 @@ const { verifyToken } = require('../middlewares/authMiddleware'); // <-- Import 
 const { syncUser } = require('../controllers/userController');
 
 // Pasang verifyToken di tengah-tengah sebagai penjaga
-router.post('/predict-risk', verifyToken, getRiskPrediction);
 router.get('/user/sync', verifyToken, syncUser);
+router.post('/predict-risk', verifyToken, getRiskPrediction);
+
 
 module.exports = router;
 

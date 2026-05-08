@@ -2,18 +2,18 @@
 const supabase = require('../config/supabase');
 
 const syncUser = async (req, res) => {
-    // req.user didapat dari Satpam (authMiddleware) yang kita buat sebelumnya
+    // req.user didapat dari token Firebase yang sudah lolos dari Satpam (middleware)
     const { uid, email, name, picture } = req.user;
 
     try {
-        // 1. Cek apakah user sudah ada di table profiles
-        let { data: profile, error } = await supabase
+        // 1. Cek apakah user sudah ada di database Supabase
+        let { data: profile, error: fetchError } = await supabase
             .from('profiles')
             .select('*')
             .eq('firebase_uid', uid)
             .single();
 
-        // 2. Jika belum ada, buat profile baru (Auto-Register)
+        // 2. Kalau belum ada (user baru), masukkan ke database
         if (!profile) {
             const { data: newProfile, error: insertError } = await supabase
                 .from('profiles')
@@ -21,8 +21,8 @@ const syncUser = async (req, res) => {
                     { 
                         firebase_uid: uid, 
                         email: email, 
-                        full_name: name, 
-                        avatar_url: picture,
+                        full_name: name || '', 
+                        avatar_url: picture || '',
                         role: 'worker' 
                     }
                 ])
@@ -31,17 +31,23 @@ const syncUser = async (req, res) => {
 
             if (insertError) throw insertError;
             profile = newProfile;
+            console.log(`User baru terdaftar: ${email}`);
+        } else {
+            console.log(`User lama login: ${email}`);
         }
 
+        // 3. Kembalikan data profil ke frontend
         res.json({
             status: 'success',
-            message: 'User synced successfully',
+            message: 'User berhasil disinkronisasi',
             data: profile
         });
+
     } catch (error) {
+        console.error("Error sync user:", error);
         res.status(500).json({
             status: 'error',
-            message: error.message
+            message: 'Terjadi kesalahan saat sinkronisasi data user'
         });
     }
 };
