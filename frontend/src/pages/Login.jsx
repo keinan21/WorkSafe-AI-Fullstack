@@ -80,6 +80,10 @@ const Login = () => {
                 <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" alt="" className='w-5 h-5 mr-2' />
                 {loading ? 'Loading...' : 'Masuk dengan Google'}
               </Button>
+              <Button onClick={() => navigate("/")} className="w-full">
+                <ArrowRight className="h-4 w-4 rotate-180" />
+                Kembali
+              </Button>
             </CardContent>
           </Card>
         </div>

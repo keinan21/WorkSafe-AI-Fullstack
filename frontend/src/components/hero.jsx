@@ -5,9 +5,12 @@ import {Sparkles, ArrowRight, Star} from 'lucide-react'
 import {BurstShape, Star5Shape, LightningShape, HeartShape} from '@/components/ui/shapes'
 import {Input} from '@/components/ui/input'
 import { Link } from 'react-router'
-
+import { auth } from "@/lib/firebase";
 
 const Hero = () => {
+
+  const isLoginedIn = !!auth.currentUser; 
+
   return (
     <section className="relative overflow-hidden border-b-3 border-foreground bg-accent/20">
         <div className="absolute inset-0 grid-pattern opacity-30" />
@@ -34,7 +37,9 @@ const Hero = () => {
             
             <div className="flex w-full items-center justify-center gap-2 p-2">
                 <Input type="text" placeholder="Apa Pekerjaanmu?" />
-                <Button><Link to="/predict">Cek Risiko</Link></Button>
+                <Button><Link to={
+                  isLoginedIn ? "/predict" : "/login"
+                }>Cek Risiko</Link></Button>
             </div>
           </div>
 
