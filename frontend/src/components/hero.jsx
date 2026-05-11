@@ -4,6 +4,7 @@ import {Button} from '@/components/ui/button'
 import {Sparkles, ArrowRight, Star} from 'lucide-react'
 import {BurstShape, Star5Shape, LightningShape, HeartShape} from '@/components/ui/shapes'
 import {Input} from '@/components/ui/input'
+import { Link } from 'react-router'
 
 
 const Hero = () => {
@@ -33,7 +34,7 @@ const Hero = () => {
             
             <div className="flex w-full items-center justify-center gap-2 p-2">
                 <Input type="text" placeholder="Apa Pekerjaanmu?" />
-                <Button>Cek Risiko</Button>
+                <Button><Link to="/predict">Cek Risiko</Link></Button>
             </div>
           </div>
 

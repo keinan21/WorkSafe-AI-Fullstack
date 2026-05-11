@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router"
 import LandingPage from "./pages/LandingPage"
 import Login from "./pages/Login"
 import DashboardResult from "./pages/DashboardResult"
-import Signup from "./pages/Signup"
+import Predict from "./pages/Predict"
 
 
 function App() {
@@ -15,7 +15,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<DashboardResult />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/predict" element={<Predict />} />
           </Routes>
         </Router>
     </>
