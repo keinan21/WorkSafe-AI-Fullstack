@@ -1,34 +1,54 @@
-// src/pages/Login.jsx
 import React, { useState } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '@/lib/firebase';
-import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react'
-import { Link, useNavigate } from 'react-router'
+import { ArrowRight, Sparkles, ShieldCheck } from 'lucide-react'
+import { useNavigate } from 'react-router' // Sesuai dengan package router lu
 
 const Login = () => {
-  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 2. LOGIKA LOGIN GOOGLE + TEST API (Punya temen lu)
+  // URL URL Backend Lu (Sesuaikan menjadi `${BACKEND_URL}/api/user/sync` jika Adit pakai prefix /api)
+  const BACKEND_URL = "http://localhost:5001";
+
+  // LOGIKA LOGIN GOOGLE + SINKRONISASI BACKEND
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
+      // 1. Login ke Firebase PopUp
       const res = await signInWithPopup(auth, provider);
       const token = await res.user.getIdToken();
-      console.log("Token berhasil didapat:", token);
+      console.log("Token Firebase sukses didapat:", token);
         
+      // 2. Langsung tembak route sync user milik Adit
+      try {
+        const syncResponse = await fetch(`${BACKEND_URL}/user/sync`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}` // Kirim token via Header ke Satpam Express
+          }
+        });
+        
+        const syncResult = await syncResponse.json();
+        if (syncResult.status === 'success') {
+          console.log("User berhasil disinkronisasi ke Supabase saat login:", syncResult.data);
+        } else {
+          console.warn("Backend merespon tapi gagal sync:", syncResult.message);
+        }
+      } catch (syncError) {
+        // Jaring pengaman: Jika internet lu masih timeout ke Supabase, 
+        // proses testing login lu gak bakal nge-stuck/crash di sini.
+        console.error("Koneksi backend/Supabase bermasalah, skips sync sementara:", syncError);
+      }
+
+      // 3. Alihkan ke halaman kuisioner
       navigate("/predict");
 
     } catch (error) {
       console.error("Gagal login Google:", error);
-      alert("Error: " + error.message);
+      alert("Error Login: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -72,17 +92,26 @@ const Login = () => {
             <CardHeader className="space-y-2 pb-6 text-left">
               <CardTitle className="text-3xl font-black uppercase tracking-tight">Masuk</CardTitle>
               <CardDescription className="text-muted-foreground font-medium text-base">
-                Mimpi yag besar dimulai dari langkah pertama. 
+                Mimpi yang besar dimulai dari langkah pertama. 
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full mb-4" onClick={handleGoogleLogin} disabled={loading}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" alt="" className='w-5 h-5 mr-2' />
-                {loading ? 'Loading...' : 'Masuk dengan Google'}
+            <CardContent className="space-y-3">
+              <Button 
+                variant="outline" 
+                className="w-full h-12 border-2 border-foreground font-bold shadow-[3px_3px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none bg-white text-foreground" 
+                onClick={handleGoogleLogin} 
+                disabled={loading}
+              >
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" alt="Google" className='w-5 h-5 mr-2' />
+                {loading ? 'Menghubungkan...' : 'Masuk dengan Google'}
               </Button>
-              <Button onClick={() => navigate("/")} className="w-full">
+              
+              <Button 
+                onClick={() => navigate("/")} 
+                className="w-full h-12 bg-accent text-foreground border-2 border-foreground font-bold shadow-[3px_3px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none flex items-center justify-center gap-2"
+              >
                 <ArrowRight className="h-4 w-4 rotate-180" />
-                Kembali
+                Kembali ke Beranda
               </Button>
             </CardContent>
           </Card>

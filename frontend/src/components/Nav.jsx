@@ -67,7 +67,6 @@ const Nav = () => {
             /* --- JIKA BELUM LOGIN --- */
             <Button 
               asChild 
-              className="bg-primary text-primary-foreground border-2 border-foreground font-black uppercase shadow-[3px_3px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
             >
               <Link to="/login">Log in</Link>
             </Button>

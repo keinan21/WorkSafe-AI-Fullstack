@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
-
+import {Link} from 'react-router'
 const CTA = () => {
   return (
     <section className="py-20 bg-primary/10 flex items-center justify-center border-b-3 border-foreground px-5 relative overflow-hidden">
@@ -12,8 +12,11 @@ const CTA = () => {
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-8">
             Bergabunglah dengan ribuan pekerja lainnya yang sudah memulai perjalanan adaptasi digital bersama WorkSafe AI.
           </p>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/80">
-            Mulai Sekarang
+          <Button className="border-r-1">
+            <Link to="/predict">Mulai Sekarang</Link>
+          </Button>
+          <Button variant="outline" className="border-l-1">
+            <Link to="/analytics">Transparansi Data</Link>
           </Button>
         </div>
       </div>

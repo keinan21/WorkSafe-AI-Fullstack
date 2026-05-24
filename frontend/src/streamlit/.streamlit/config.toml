@@ -1,0 +1,15 @@
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
+
+# ==========================================
+# FORCE BOLDKIT LIGHT THEME UNTUK STREAMLIT
+# ==========================================
+[theme]
+primaryColor = "#F77272"          # --primary (Coral Red)
+backgroundColor = "#FAFAF7"       # --background (Warm White)
+secondaryBackgroundColor = "#E6E5E0" # --muted (Abu-abu neubrutalism)
+textColor = "#18181B"             # --foreground (Hitam Pekat)
+font = "sans serif"
