@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Daftarkan link sitemap lu nanti di sini
+Sitemap: https://nama-projek-lu.vercel.app/sitemap.xml
