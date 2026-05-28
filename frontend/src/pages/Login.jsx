@@ -4,7 +4,8 @@ import { auth, provider } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Sparkles, ShieldCheck } from 'lucide-react'
-import { useNavigate } from 'react-router' // Sesuai dengan package router lu
+import { useNavigate } from 'react-router'
+import Loader from '@/components/Loader';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -23,23 +24,24 @@ const Login = () => {
       console.log("Token Firebase sukses didapat:", token);
         
       // 2. Langsung tembak route sync user milik Adit
+      // 2. Langsung tembak route sync user milik Adit
       try {
-        const syncResponse = await fetch(`${BACKEND_URL}/user/sync`, {
-          method: 'GET',
+        // Tambahkan /api/ di URL-nya (sesuaikan jika di backend Adit berbeda)
+        const syncResponse = await fetch(`${BACKEND_URL}/api/user/sync`, {
+          method: 'GET', // 
           headers: {
-            'Authorization': `Bearer ${token}` // Kirim token via Header ke Satpam Express
+            'Content-Type': 'application/json', // Tambahkan ini standar API
+            'Authorization': `Bearer ${token}` 
           }
         });
         
         const syncResult = await syncResponse.json();
-        if (syncResult.status === 'success') {
-          console.log("User berhasil disinkronisasi ke Supabase saat login:", syncResult.data);
+        if (syncResponse.ok && syncResult.status === 'success') {
+          console.log("User berhasil disinkronisasi ke Supabase:", syncResult.data);
         } else {
           console.warn("Backend merespon tapi gagal sync:", syncResult.message);
         }
       } catch (syncError) {
-        // Jaring pengaman: Jika internet lu masih timeout ke Supabase, 
-        // proses testing login lu gak bakal nge-stuck/crash di sini.
         console.error("Koneksi backend/Supabase bermasalah, skips sync sementara:", syncError);
       }
 
@@ -75,6 +77,8 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      if (loading) return <Loader />;
 
       {/* --- SISI KANAN: FORM --- */}
       <div className="flex flex-col items-center justify-center p-6 md:p-12 relative">

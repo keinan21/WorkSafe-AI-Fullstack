@@ -44,17 +44,19 @@ const Nav = () => {
             /* --- JIKA SUDAH LOGIN --- */
             <>
               {/* Nama (Disembunyikan di HP biar ga sempit) */}
-              <span className="hidden md:block text-sm font-bold uppercase tracking-wider">
-                Halo, {user.displayName?.split(" ")[0]} {/* Ambil nama depan aja biar rapi */}
+              <span className="hidden md:block text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors">
+                <Link to="/dashboard">Halo, {user.displayName?.split(" ")[0]} {/* Ambil nama depan aja biar rapi */}</Link>
               </span>
               
               {/* Foto Profil Google */}
+              <Link to="/dashboard">
               <img 
                 src={user.photoURL} 
                 alt="Profile" 
-                className="w-11 h-11 border-3 border-foreground object-cover bg-muted"
+                className="w-11 h-11 border-3 border-foreground object-cover bg-muted hover:shado"
                 referrerPolicy="no-referrer" 
               />
+              </Link>
               
               <Button 
                 variant="ghost" 

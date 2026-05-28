@@ -6,7 +6,8 @@ import Login from "./pages/Login"
 import Hasil from "./pages/Hasil"
 import Predict from "./pages/Predict"
 import DataAnalytics from "./pages/DataAnalytics"
-
+import Dashboard from "./pages/Dashboard"
+import NotFound from "./pages/NotFound"
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
             <Route path="/hasil" element={<Hasil />} />
             <Route path="/predict" element={<Predict />} />
             <Route path="/analytics" element={<DataAnalytics />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
     </>

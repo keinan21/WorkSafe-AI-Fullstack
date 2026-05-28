@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
         {/* Wrapper Iframe */}
         <div className="p-4 bg-muted/30">
           <iframe
-            src="http://localhost:8501/?embed=true"
+            src="https://worksafe-ai-fullstack-gvvppsnumypvqsywtotdht.streamlit.app/?embed=true&embed_options=show_toolbar,light_theme,show_colored_line,show_padding,disable_scrolling"
             title="Streamlit Security Analytics Dashboard"
             className="w-full h-[680px] border-3 border-foreground bg-background"
             allowFullScreen
