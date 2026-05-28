@@ -66,7 +66,7 @@ const Predict = () => {
   })
   const [answers, setAnswers] = useState({}) 
 
-  const BACKEND_URL = "http://localhost:5001";
+  const BACKEND_URL = "https://worksafe-ai-fullstack.onrender.com/";
   const AI_ENDPOINT = "https://worksafe-ai-production.up.railway.app/predict";
 
   useEffect(() => {

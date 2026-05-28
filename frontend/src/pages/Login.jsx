@@ -12,7 +12,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   // URL URL Backend Lu (Sesuaikan menjadi `${BACKEND_URL}/api/user/sync` jika Adit pakai prefix /api)
-  const BACKEND_URL = "http://localhost:5001";
+  const BACKEND_URL = "https://worksafe-ai-fullstack.onrender.com/";
 
   // LOGIKA LOGIN GOOGLE + SINKRONISASI BACKEND
   const handleGoogleLogin = async () => {
