@@ -17,7 +17,7 @@ const Dashboard = () => {
   const [openAccordion, setOpenAccordion] = useState(null); // Sekarang melacak item.id
   
   const navigate = useNavigate();
-  const BACKEND_URL = "https://worksafe-ai-fullstack.onrender.com/";
+  const BACKEND_URL = "https://worksafe-ai-fullstack.onrender.com";
 
   useEffect(() => {
     const fetchHistory = async (currentUser) => {

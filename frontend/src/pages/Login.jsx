@@ -11,8 +11,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // URL URL Backend Lu (Sesuaikan menjadi `${BACKEND_URL}/api/user/sync` jika Adit pakai prefix /api)
-  const BACKEND_URL = "https://worksafe-ai-fullstack.onrender.com/";
+  // HAPUS garis miring di ujung agar tidak dobel saat di-fetch
+  const BACKEND_URL = "https://worksafe-ai-fullstack.onrender.com";
 
   // LOGIKA LOGIN GOOGLE + SINKRONISASI BACKEND
   const handleGoogleLogin = async () => {
@@ -24,13 +24,11 @@ const Login = () => {
       console.log("Token Firebase sukses didapat:", token);
         
       // 2. Langsung tembak route sync user milik Adit
-      // 2. Langsung tembak route sync user milik Adit
       try {
-        // Tambahkan /api/ di URL-nya (sesuaikan jika di backend Adit berbeda)
         const syncResponse = await fetch(`${BACKEND_URL}/api/user/sync`, {
-          method: 'GET', // 
+          method: 'GET',
           headers: {
-            'Content-Type': 'application/json', // Tambahkan ini standar API
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}` 
           }
         });
@@ -56,6 +54,12 @@ const Login = () => {
     }
   };
 
+  // ✅ SOLUSI: Taruh pengecekan loading DI SINI, SEBELUM return utama
+  if (loading) {
+    return <Loader text="Menyiapkan Sesi Anda..." />;
+  }
+
+  // RETURN UTAMA HALAMAN LOGIN
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-sidebar overflow-hidden">
       
@@ -77,8 +81,6 @@ const Login = () => {
           </p>
         </div>
       </div>
-
-      if (loading) return <Loader />;
 
       {/* --- SISI KANAN: FORM --- */}
       <div className="flex flex-col items-center justify-center p-6 md:p-12 relative">
@@ -107,7 +109,7 @@ const Login = () => {
                 disabled={loading}
               >
                 <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" alt="Google" className='w-5 h-5 mr-2' />
-                {loading ? 'Menghubungkan...' : 'Masuk dengan Google'}
+                Masuk dengan Google
               </Button>
               
               <Button 
