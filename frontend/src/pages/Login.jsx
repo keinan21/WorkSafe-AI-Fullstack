@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { signInWithPopup } from 'firebase/auth';
+import React, { useState, useEffect } from 'react';
+import { signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth, provider } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -11,55 +11,94 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // HAPUS garis miring di ujung agar tidak dobel saat di-fetch
   const BACKEND_URL = "https://worksafe-ai-fullstack.onrender.com";
 
-  // LOGIKA LOGIN GOOGLE + SINKRONISASI BACKEND
+  // 💡 FUNGSI SYNC BACKEND (Dipisah biar gak duplikasi kode)
+  const syncUserToBackend = async (token) => {
+    try {
+      console.log("🔗 Mencoba sinkronisasi user ke backend Render...");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // Maksimal nunggu 5 detik
+
+      const syncResponse = await fetch(`${BACKEND_URL}/api/user/sync`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+
+      const syncResult = await syncResponse.json();
+      if (syncResponse.ok && syncResult.status === 'success') {
+        console.log("✅ User berhasil disinkronisasi ke Supabase:", syncResult.data);
+      } else {
+        console.warn("⚠️ Backend merespon tapi gagal sync:", syncResult.message);
+      }
+    } catch (syncError) {
+      console.error("❌ Gagal sync (skip sementara demi user):", syncError.message);
+    }
+  };
+
+  // 💡 KHUSUS MOBILE: Tangkap hasil kembalian dari Google Redirect pas halaman muat ulang
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const res = await getRedirectResult(auth);
+        if (res) {
+          setLoading(true);
+          const token = await res.user.getIdToken();
+          console.log("🔥 [Mobile] Token Firebase sukses didapat via Redirect:", token);
+          
+          await syncUserToBackend(token);
+          
+          console.log("🚀 [Mobile] Mengalihkan ke halaman prediksi...");
+          navigate("/predict");
+        }
+      } catch (error) {
+        console.error("❌ Gagal memproses hasil redirect Google:", error);
+        alert("Gagal Login: " + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleRedirectResult();
+  }, [navigate]);
+
+  // LOGIKA UTAMA TOMBOL LOGIN (OTOMATIS DETEKSI PC / HP)
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      // 1. Login ke Firebase PopUp
-      const res = await signInWithPopup(auth, provider);
-      const token = await res.user.getIdToken();
-      console.log("Token Firebase sukses didapat:", token);
-        
-      // 2. Langsung tembak route sync user milik Adit
-      try {
-        const syncResponse = await fetch(`${BACKEND_URL}/api/user/sync`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-          }
-        });
-        
-        const syncResult = await syncResponse.json();
-        if (syncResponse.ok && syncResult.status === 'success') {
-          console.log("User berhasil disinkronisasi ke Supabase:", syncResult.data);
-        } else {
-          console.warn("Backend merespon tapi gagal sync:", syncResult.message);
-        }
-      } catch (syncError) {
-        console.error("Koneksi backend/Supabase bermasalah, skips sync sementara:", syncError);
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        console.log("📱 Menggunakan HP: Mengalihkan via Redirect...");
+        await signInWithRedirect(auth, provider);
+      } else {
+        console.log("💻 Menggunakan Laptop/PC: Membuka Pop-Up...");
+        const res = await signInWithPopup(auth, provider);
+        const token = await res.user.getIdToken();
+        console.log("🔥 [PC] Token Firebase sukses didapat:", token);
+          
+        await syncUserToBackend(token);
+
+        console.log("🚀 [PC] Mengalihkan ke halaman prediksi...");
+        navigate("/predict");
       }
-
-      // 3. Alihkan ke halaman kuisioner
-      navigate("/predict");
-
     } catch (error) {
-      console.error("Gagal login Google:", error);
+      console.error("❌ Gagal login Google:", error);
       alert("Error Login: " + error.message);
-    } finally {
       setLoading(false);
     }
   };
 
-  // ✅ SOLUSI: Taruh pengecekan loading DI SINI, SEBELUM return utama
   if (loading) {
     return <Loader text="Menyiapkan Sesi Anda..." />;
   }
 
-  // RETURN UTAMA HALAMAN LOGIN
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-sidebar overflow-hidden">
       
