@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 import { auth, provider } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,12 +13,12 @@ const Login = () => {
 
   const BACKEND_URL = "https://worksafe-ai-fullstack.onrender.com";
 
-  // 💡 FUNGSI SYNC BACKEND (Dipisah biar gak duplikasi kode)
+  // Fungsi sinkronisasi ke backend Render
   const syncUserToBackend = async (token) => {
     try {
       console.log("🔗 Mencoba sinkronisasi user ke backend Render...");
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // Maksimal nunggu 5 detik
+      const timeoutId = setTimeout(() => controller.abort(), 5000); 
 
       const syncResponse = await fetch(`${BACKEND_URL}/api/user/sync`, {
         method: 'GET',
@@ -30,67 +30,57 @@ const Login = () => {
       });
       
       clearTimeout(timeoutId);
-
       const syncResult = await syncResponse.json();
       if (syncResponse.ok && syncResult.status === 'success') {
-        console.log("✅ User berhasil disinkronisasi ke Supabase:", syncResult.data);
-      } else {
-        console.warn("⚠️ Backend merespon tapi gagal sync:", syncResult.message);
+        console.log("✅ User berhasil disinkronisasi ke Supabase");
       }
     } catch (syncError) {
-      console.error("❌ Gagal sync (skip sementara demi user):", syncError.message);
+      console.error("❌ Gagal sync:", syncError.message);
     }
   };
 
-  // 💡 KHUSUS MOBILE: Tangkap hasil kembalian dari Google Redirect pas halaman muat ulang
+  // Radar otomatis untuk mendeteksi status login aktif
   useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        const res = await getRedirectResult(auth);
-        if (res) {
-          setLoading(true);
-          const token = await res.user.getIdToken();
-          console.log("🔥 [Mobile] Token Firebase sukses didapat via Redirect:", token);
-          
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setLoading(true);
+        try {
+          const token = await user.getIdToken();
           await syncUserToBackend(token);
-          
-          console.log("🚀 [Mobile] Mengalihkan ke halaman prediksi...");
+          console.log("🚀 Mengalihkan ke halaman prediksi...");
           navigate("/predict");
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error("❌ Gagal memproses hasil redirect Google:", error);
-        alert("Gagal Login: " + error.message);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    handleRedirectResult();
+    });
+    return () => unsubscribe();
   }, [navigate]);
 
-  // LOGIKA UTAMA TOMBOL LOGIN (OTOMATIS DETEKSI PC / HP)
+  // LOGIKA UTAMA TOMBOL LOGIN (LOLOS BLOKIRAN HP)
   const handleGoogleLogin = async () => {
-    setLoading(true);
     try {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      // 🚨 CRITICAL: Jangan set loading dulu di sini! 
+      // signInWithPopup HARUS berada di baris paling pertama agar browser HP tahu ini murni klik dari user.
+      const res = await signInWithPopup(auth, provider);
+      
+      // Baru setelah pop-up Google terbuka/sukses, kita nyalakan layar loading
+      setLoading(true);
+      const token = await res.user.getIdToken();
+      console.log("🔥 Token Firebase sukses didapat:", token);
+        
+      await syncUserToBackend(token);
+      navigate("/predict");
 
-      if (isMobile) {
-        console.log("📱 Menggunakan HP: Mengalihkan via Redirect...");
-        await signInWithRedirect(auth, provider);
-      } else {
-        console.log("💻 Menggunakan Laptop/PC: Membuka Pop-Up...");
-        const res = await signInWithPopup(auth, provider);
-        const token = await res.user.getIdToken();
-        console.log("🔥 [PC] Token Firebase sukses didapat:", token);
-          
-        await syncUserToBackend(token);
-
-        console.log("🚀 [PC] Mengalihkan ke halaman prediksi...");
-        navigate("/predict");
-      }
     } catch (error) {
       console.error("❌ Gagal login Google:", error);
-      alert("Error Login: " + error.message);
+      // Jika user sengaja menutup pop-up, jangan tampilkan alert error mengganggu
+      if (error.code !== 'auth/popup-closed-by-user') {
+        alert("Error Login: " + error.message);
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -101,7 +91,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-sidebar overflow-hidden">
-      
       {/* --- SISI KIRI: BRANDING --- */}
       <div className="hidden lg:flex flex-col items-center justify-center bg-primary border-r-4 border-foreground relative p-12">
         <div className="absolute inset-0 grid-pattern opacity-20" />
